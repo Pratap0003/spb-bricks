@@ -1,8 +1,4 @@
-// firebase.js  (PURE JavaScript file)
-
-importScripts("https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js");
-importScripts("https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js");
-importScripts("https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js");
+// firebase.js  (NO <script>, NO importScripts)
 
 const firebaseConfig = {
   apiKey: "AIzaSyAvSI1FKa3icRSv93-lpL3VMRJ31hAFHgU",
@@ -16,6 +12,6 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 
-// expose globally
+// make available globally
 window.auth = firebase.auth();
 window.db = firebase.firestore();
