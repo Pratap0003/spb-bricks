@@ -36,6 +36,31 @@ button{
 </head>
 
 <body>
+  <!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<!-- Your Firebase config -->
+<script src="firebase.js"></script>
+
+<script>
+window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier(
+  'recaptcha-container',
+  { size: 'invisible' }
+);
+
+let confirmationResult;
+
+function sendOTP(){
+  auth.signInWithPhoneNumber(phone.value, recaptchaVerifier)
+    .then(r => {
+      confirmationResult = r;
+      alert("OTP sent");
+    })
+    .catch(e => alert(e.message));
+}
+</script>
 
 <div class="box">
 <h2>Login</h2>
@@ -95,4 +120,5 @@ function verifyOTP(){
 </script>
 
 </body>
+
 </html>
