@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Admin | S_P Bricks</title>
+<script src="firebase.js"></script>
+</head>
+
+<body>
+
+<h2>Dealers</h2>
+<div id="dealers"></div>
+
+<h2>Orders</h2>
+<div id="orders"></div>
+
+<script>
+const ADMIN_PHONE = "+919021177171";
+
+auth.onAuthStateChanged(user=>{
+  if(!user) location="login.html";
+  db.collection("users").doc(user.uid).get().then(doc=>{
+    if(doc.data().phone !== ADMIN_PHONE){
+      location="index.html";
+    }
+  });
+});
+
+db.collection("users").where("role","==","Dealer")
+.onSnapshot(snapshot=>{
+  dealers.innerHTML="";
+  snapshot.forEach(doc=>{
+    const d = doc.data();
+    dealers.innerHTML += `
+      <p>${d.name} | ${d.phone} |
+      Ordered: ${d.totalOrdered} |
+      Approved: ${d.dealerApproved}</p>`;
+  });
+});
+
+db.collection("orders").orderBy("createdAt","desc")
+.onSnapshot(snapshot=>{
+  orders.innerHTML="";
+  snapshot.forEach(doc=>{
+    const o = doc.data();
+    orders.innerHTML += `
+      <p>${o.name} | ${o.quantity} bricks | ₹${o.totalPrice}</p>`;
+  });
+});
+</script>
+
+</body>
+</html>

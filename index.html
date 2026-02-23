@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>S_P Bricks | Order</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="firebase.js"></script>
+</head>
+
+<body>
+
+<h2>S_P Bricks – Order Portal</h2>
+<p id="status"></p>
+
+<label>Quantity (in thousands)</label>
+<select id="qty">
+  <option value="1">1,000</option>
+  <option value="5">5,000</option>
+  <option value="10">10,000</option>
+  <option value="20">20,000</option>
+</select>
+
+<label>Distance (km)</label>
+<input id="distance" type="number">
+
+<button onclick="placeOrder()">Place Order</button>
+
+<script>
+const uid = localStorage.getItem("uid");
+if(!uid) location="login.html";
+
+let currentUser;
+
+db.collection("users").doc(uid).get().then(doc=>{
+  currentUser = doc.data();
+  if(currentUser.role==="Dealer" && !currentUser.dealerApproved){
+    status.innerText =
+      "Dealer will be automatically approved after ordering 10,000 bricks.";
+  }
+});
+
+function placeOrder(){
+  const q = Number(qty.value);
+  const d = Number(distance.value);
+
+  let total = q * 13000;
+  if(d > 10){
+    total += Math.ceil((d - 10)/2) * 250 * q;
+  }
+
+  if(currentUser.role==="Dealer" && currentUser.dealerApproved){
+    if(q >= 10) total -= 500 * q;
+  }
+
+  db.collection("orders").add({
+    userId: uid,
+    name: currentUser.name,
+    role: currentUser.role,
+    dealerApproved: currentUser.dealerApproved,
+    quantity: q * 1000,
+    distance: d,
+    totalPrice: total,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
+
+  if(currentUser.role==="Dealer"){
+    const newTotal = (currentUser.totalOrdered || 0) + q * 1000;
+    const update = { totalOrdered: newTotal };
+    if(newTotal >= 10000) update.dealerApproved = true;
+    db.collection("users").doc(uid).update(update);
+  }
+
+  alert("Order placed successfully");
+}
+</script>
+
+</body>
+</html>

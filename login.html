@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>S_P Bricks | Login</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="firebase.js"></script>
+
+<style>
+body{
+  font-family: Georgia, serif;
+  background:#1f1f1f;
+  color:#eee;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+}
+.box{
+  background:#2a2a2a;
+  padding:30px;
+  width:340px;
+  border-left:6px solid #8b3a2b;
+}
+input,select,button{
+  width:100%;
+  padding:10px;
+  margin-top:10px;
+}
+button{
+  background:#8b3a2b;
+  color:#fff;
+  border:none;
+}
+</style>
+</head>
+
+<body>
+
+<div class="box">
+<h2>Login</h2>
+
+<input id="name" placeholder="Full Name" required>
+<input id="phone" placeholder="+91XXXXXXXXXX" required>
+
+<select id="role">
+  <option>Individual</option>
+  <option>Contractor</option>
+  <option>Dealer</option>
+</select>
+
+<div id="recaptcha-container"></div>
+
+<button onclick="sendOTP()">Send OTP</button>
+
+<input id="otp" placeholder="Enter OTP">
+<button onclick="verifyOTP()">Verify & Login</button>
+</div>
+
+<script>
+window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier(
+  'recaptcha-container', { size: 'invisible' }
+);
+
+let confirmationResult;
+
+function sendOTP(){
+  auth.signInWithPhoneNumber(phone.value, recaptchaVerifier)
+    .then(result => {
+      confirmationResult = result;
+      alert("OTP sent via SMS");
+    })
+    .catch(err => alert(err.message));
+}
+
+function verifyOTP(){
+  confirmationResult.confirm(otp.value)
+    .then(res => {
+      const uid = res.user.uid;
+
+      db.collection("users").doc(uid).set({
+        name: name.value,
+        phone: phone.value,
+        role: role.value,
+        dealerApproved: false,
+        totalOrdered: 0,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      }, { merge:true });
+
+      localStorage.setItem("uid", uid);
+      window.location.href = "index.html";
+    })
+    .catch(() => alert("Incorrect OTP"));
+}
+</script>
+
+</body>
+</html>
